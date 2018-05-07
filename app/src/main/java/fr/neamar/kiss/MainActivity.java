@@ -43,6 +43,7 @@ import fr.neamar.kiss.searcher.ApplicationsSearcher;
 import fr.neamar.kiss.searcher.QueryInterface;
 import fr.neamar.kiss.searcher.QuerySearcher;
 import fr.neamar.kiss.searcher.Searcher;
+import fr.neamar.kiss.ui.ActionModePopup;
 import fr.neamar.kiss.ui.AnimatedListView;
 import fr.neamar.kiss.ui.BottomPullEffectView;
 import fr.neamar.kiss.ui.KeyboardScrollHider;
@@ -495,8 +496,14 @@ public class MainActivity extends Activity implements QueryInterface, KeyboardSc
         // When the kiss bar is displayed, the button can still be clicked in a few areas (due to favorite margin)
         // To fix this, we discard any click event occurring when the kissbar is displayed
         if (isViewingSearchResults()) {
-            this.menuButton.showContextMenu();
-            this.menuButton.performHapticFeedback(LONG_PRESS);
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Log.d(TAG, "should show now.");
+                ActionModePopup actionModePopup = new ActionModePopup();
+                actionModePopup.startActionMode(this, R.menu.menu_main);
+            }
+//
+//            this.menuButton.showContextMenu();
+//            this.menuButton.performHapticFeedback(LONG_PRESS);
         }
     }
 
