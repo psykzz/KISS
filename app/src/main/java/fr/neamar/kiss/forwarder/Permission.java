@@ -13,12 +13,14 @@ import java.lang.ref.WeakReference;
 import fr.neamar.kiss.KissApplication;
 import fr.neamar.kiss.MainActivity;
 import fr.neamar.kiss.R;
+import fr.neamar.kiss.dataprovider.CalllogProvider;
 import fr.neamar.kiss.dataprovider.ContactsProvider;
 
 
 public class Permission extends Forwarder {
     private static final int PERMISSION_READ_CONTACTS = 0;
     private static final int PERMISSION_CALL_PHONE = 1;
+    private static final int PERMISSION_READ_CALL_LOG  = 2;
 
     // Static weak reference to the main activity, this is sadly required
     // to ensure classes requesting permission can access activity.requestPermission()
@@ -67,6 +69,21 @@ public class Permission extends Forwarder {
         }
     }
 
+
+    // Call Log Permissions
+    public static boolean checkCallLogPermission(Context context) {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.M || context.checkSelfPermission(Manifest.permission.READ_CALL_LOG) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static void askCallLogPermission() {
+        // If we don't have permission to list contacts, ask for it.
+        MainActivity mainActivity = Permission.currentMainActivity.get();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mainActivity != null) {
+            mainActivity.requestPermissions(new String[]{android.Manifest.permission.READ_CALL_LOG},
+                    Permission.PERMISSION_READ_CALL_LOG);
+        }
+    }
+
     Permission(MainActivity mainActivity) {
         super(mainActivity);
         // Store the latest reference to a MainActivity
@@ -95,6 +112,12 @@ public class Permission extends Forwarder {
                 mainActivity.launchOccurred();
             } else {
                 Toast.makeText(mainActivity, R.string.permission_denied, Toast.LENGTH_SHORT).show();
+            }
+        } else if (requestCode == PERMISSION_READ_CALL_LOG && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // Reload the call-log provider
+            CalllogProvider calllogProvider = KissApplication.getApplication(mainActivity).getDataHandler().getCallLogsProvider();
+            if (calllogProvider != null) {
+                calllogProvider.reload();
             }
         }
     }

@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import fr.neamar.kiss.dataprovider.AppProvider;
+import fr.neamar.kiss.dataprovider.CalllogProvider;
 import fr.neamar.kiss.dataprovider.ContactsProvider;
 import fr.neamar.kiss.dataprovider.IProvider;
 import fr.neamar.kiss.dataprovider.Provider;
@@ -49,7 +50,7 @@ public class DataHandler extends BroadcastReceiver
      * List all known providers
      */
     final static private List<String> PROVIDER_NAMES = Arrays.asList(
-            "app", "contacts", "phone", "search", "settings", "shortcuts"
+            "app", "contacts", "phone", "search", "settings", "shortcuts", "calllog"
     );
     private TagsHandler tagsHandler;
     final private Context context;
@@ -141,8 +142,10 @@ public class DataHandler extends BroadcastReceiver
         // Find provider class for the given service name
         Intent intent = this.providerName2Intent(name);
         if (intent == null) {
+            Log.v(TAG, "No intent found for provider: " + name);
             return;
         }
+        Log.v(TAG, "intent found for provider: " + name);
 
         // Send "start service" command first so that the service can run independently
         // of the activity
@@ -392,6 +395,11 @@ public class DataHandler extends BroadcastReceiver
     public ContactsProvider getContactsProvider() {
         ProviderEntry entry = this.providers.get("contacts");
         return (entry != null) ? ((ContactsProvider) entry.provider) : null;
+    }
+
+    public CalllogProvider getCallLogsProvider() {
+        ProviderEntry entry = this.providers.get("calllog");
+        return (entry != null) ? ((CalllogProvider) entry.provider) : null;
     }
 
     public ShortcutsProvider getShortcutsProvider() {
